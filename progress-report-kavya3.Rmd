@@ -1,0 +1,110 @@
+---
+title: "Progress Report"
+author: "kavya bhavanam"
+date: "2022-11-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Step 1: Finding a website
+I used Baseball Reference to get Hall of Fame 2026 data.
+
+## Step 2: Scraping data
+I used rvest to read the webpage and extract tables.
+
+```{r}
+library(rvest)
+library(dplyr)
+library(tidyverse)
+
+install.packages("Lahman")
+library(Lahman)
+
+
+
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+
+page <- read_html(url)
+
+
+hof_raw <- page %>%
+  html_node("table#hof_BBWAA") %>%
+  html_table(fill = TRUE)
+
+head(hof_raw)
+
+
+```
+
+
+
+```{r}
+library(dplyr)
+
+ hof_clean <- hof_raw %>%
+  select(Name, Votes, `%vote`) %>%
+  mutate(`%vote` = as.numeric(gsub("%", "", `%vote`)))
+ 
+ head(hof_clean)
+ 
+```
+
+```{r}
+hof_clean <- hof_clean %>%
+  mutate(inducted = ifelse(`%vote` >= 75, "Y", "N"))
+
+hof_clean
+```
+
+```{r}
+data("HallOfFame")
+
+hof_lahman <- HallOfFame %>%
+  filter(yearID == 2026)
+
+hof_lahman
+```
+
+```{r}
+lahman_inducted <- hof_lahman %>%
+  filter(inducted == "Y")
+
+lahman_inducted
+```
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

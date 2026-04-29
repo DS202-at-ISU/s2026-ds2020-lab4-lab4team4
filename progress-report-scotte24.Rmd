@@ -7,6 +7,72 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
+library(dplyr)
+library(readr)
+library(Lahman)
 ```
 
 ## R Markdown
+Scrape the data
+```{r}
+bbwaa_scraper <- function(url, element = "#hof_BBWAA") {
+  site <- read_html(url)
+  table <- site |> html_element(element) |> html_table()
+  
+  # Fix column names
+  colnames(table) <- table[1,]
+  table <- table[-1,]
+  
+  table
+}
+
+# Scrape 2026 data
+raw_data <- bbwaa_scraper("https://www.baseball-reference.com/awards/hof_2026.shtml")
+
+head(raw_data)
+```
+clean the data
+```{r}
+hof_2026 <- raw_data |>
+  select(Name, Votes, `%vote`) |>
+  mutate(
+    yearID = 2026,
+    Votes = as.numeric(Votes),
+    percent_vote = parse_number(`%vote`),
+    inducted = ifelse(percent_vote >= 75, "Y", "N")
+  )
+
+head(hof_2026)
+```
+Check data types
+```{r}
+str(hof_2026)
+```
+Compare to Lahman data
+```{r}
+lahman_2026 <- HallOfFame |>
+  filter(yearID == 2026)
+
+# Row counts
+nrow(hof_2026)
+nrow(lahman_2026)
+```
+Compare inductions
+```{r}
+# Scraped data
+hof_2026 |>
+  count(inducted)
+
+# Lahman data
+lahman_2026 |>
+  count(votedBy, inducted)
+```
+Who was inducted
+```{r}
+hof_2026 |>
+  filter(inducted == "Y")
+```
+```{r}
+write.csv(hof_2026, "HallOfFame_2026.csv", row.names = FALSE)
+```
