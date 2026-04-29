@@ -5,106 +5,84 @@ date: "2022-11-17"
 output: html_document
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Step 1: Finding a Website
+I used Baseball Reference to get Hall of Fame 2026 data from:
+https://www.baseball-reference.com/awards/hof_2026.shtml
 
-## Step 1: Finding a website
-I used Baseball Reference to get Hall of Fame 2026 data.
-
-## Step 2: Scraping data
-I used rvest to read the webpage and extract tables.
+## Step 2: Scraping the Data
+I used rvest to read the webpage and extract tables. The column names were stored in row 1, so I had to manually fix them.
 
 ```{r}
 library(rvest)
 library(dplyr)
 library(tidyverse)
 
-install.packages("Lahman")
+
 library(Lahman)
 
-
-
 url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+html <- read_html(url)
+tables <- html_table(html)
 
-page <- read_html(url)
+data <- tables[[1]]
 
+# The real column names are in row 1
+actual_col_names <- data[1, ]
+colnames(data) <- actual_col_names
+data <- data[-1, ]
 
-hof_raw <- page %>%
-  html_node("table#hof_BBWAA") %>%
-  html_table(fill = TRUE)
-
-head(hof_raw)
-
-
+head(data, 3)
 ```
 
-
+## Step 3: Cleaning the Data
+I converted Votes to numeric and used parse_number() to strip the % sign from the vote percentage column. I then added a yearID column and created an inducted variable based on whether the vote percentage was at least 75%.
 
 ```{r}
-library(dplyr)
+data$Votes <- as.numeric(data$Votes)
+data$percent_vote <- readr::parse_number(data$`%vote`)
+```
 
- hof_clean <- hof_raw %>%
+## Step 4: Building the Final Dataset
+I selected the required columns and added yearID and inducted.
+
+```{r}
+hof_2026 <- data %>%
   select(Name, Votes, `%vote`) %>%
-  mutate(`%vote` = as.numeric(gsub("%", "", `%vote`)))
- 
- head(hof_clean)
- 
+  mutate(
+    yearID = 2026,
+    Votes = as.numeric(Votes),
+    percent_vote = readr::parse_number(`%vote`),
+    inducted = ifelse(percent_vote >= 75, "Y", "N")
+  )
+
+head(hof_2026)
 ```
+
+## Step 5: Comparing to Lahman
+I compared my scraped data to the Lahman HallOfFame table filtered to 2026.
 
 ```{r}
-hof_clean <- hof_clean %>%
-  mutate(inducted = ifelse(`%vote` >= 75, "Y", "N"))
+# How many rows in scraped data?
+nrow(hof_2026)
 
-hof_clean
+# How many rows in Lahman 2026?
+lahman_2026 <- HallOfFame %>% filter(yearID == 2026)
+nrow(lahman_2026)
+
+# Count inducted in each source
+hof_2026 %>% count(inducted)
+lahman_2026 %>% count(votedBy, inducted)
 ```
+
+The scraped data has more rows than the Lahman data for 2026. This is because Baseball Reference shows the full BBWAA ballot, while the Lahman data for 2026 only contains Contemporary Baseball Era committee votes. The two sources track different voting bodies, so they do not match row-for-row.
+
+## Step 6: Exporting the CSV
 
 ```{r}
-data("HallOfFame")
 
-hof_lahman <- HallOfFame %>%
-  filter(yearID == 2026)
-
-hof_lahman
 ```
-
-```{r}
-lahman_inducted <- hof_lahman %>%
-  filter(inducted == "Y")
-
-lahman_inducted
-```
-
-```{r}
-```
-
-
-```{r}
-```
-
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
