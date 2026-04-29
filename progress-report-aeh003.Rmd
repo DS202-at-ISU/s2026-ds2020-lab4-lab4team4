@@ -7,24 +7,66 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(rvest)
 ```
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+hof <- Lahman::HallOfFame
 
-```{r cars}
-summary(cars)
+
+head(hof,3)
+ho26 <- hof |> 
+  filter(yearID == 2026)
+
+
+
+
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+site <- read_html(url)
+# target the specific table
+site |> html_elements(css = "#hof_BBWAA") |>
+  html_table()
+
+# Fix the column names
+bbwaa <- site %>% html_element(css="#hof_BBWAA") %>% html_table() 
+colnames(bbwaa) <- bbwaa[1,]
+bbwaa <- bbwaa[-1,]
+head(bbwaa)
+
+bbwaa2 <- bbwaa |> 
+  select(Name, `%vote`, Votes)
+
+head(bbwaa2)
+
+bbwaa2 <- bbwaa2 |> 
+  mutate(yearID = 2026)
+
+head(bbwaa2)
+
+bbwaa2$Votes <- as.numeric(bbwaa2$Votes)
+
+bbwaa2$vote_percentage <- readr::parse_number(bbwaa$`%vote`)
+
+
+bbwaa2 <- bbwaa2 %>%
+  mutate(inducted = if_else(`%vote` > 75, "Y", "N"))
+
+bbwaa2 <- bbwaa2 %>%
+  mutate(Name = str_remove(Name, "^X-"))
+
+bbwaa2 <- bbwaa2 |> 
+  select(-percent_vote)
+
+
+head(bbwaa2)
+
+#write.csv(bbwaa2, file="report2.csv", row.names = FALSE)
+
+
+
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
