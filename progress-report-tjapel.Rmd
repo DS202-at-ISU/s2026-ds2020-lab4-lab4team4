@@ -3,3 +3,35 @@ title: "progress-report-tjapel"
 output: html_document
 ---
 
+```{r}
+library(Lahman)
+library(rvest)
+library(tidyverse)
+library(readr)
+library(stringr)
+```
+```{r}
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+
+bbRef_raw <- read_html(url) 
+tables <- html_table(bbRef_raw)
+
+data <- tables[[1]]
+actual_col_names <- data[1, ]
+colnames(data)<- actual_col_names
+data<- data[-1, ]
+head(data)
+
+data$Votes <- as.numeric(data$Votes)
+
+hof_2026 <- data %>% 
+  select(Name, Votes, `%vote`) %>% 
+  mutate(
+    yearID = 2026,
+    Votes = as.numeric(Votes),
+    percent_vote = readr::parse_number(`%vote`),
+    inducted = ifelse(percent_vote >= 75, "Y", "N")
+  )
+head(hof_2026)
+```
+
