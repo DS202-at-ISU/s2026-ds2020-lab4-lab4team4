@@ -84,5 +84,5 @@ The scraped data has more rows than the Lahman data for 2026. This is because Ba
 ## Step 6: Exporting the CSV
 
 ```{r}
-readr::write_csv(hof_2026, file = "HallOfFame_2026.csv")
+
 ```

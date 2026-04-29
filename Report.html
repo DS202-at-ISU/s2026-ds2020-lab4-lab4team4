@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="kavya bhavanam" />
+<meta name="author" content="Kavya Bhavanam" />
 
-<meta name="date" content="2022-11-17" />
+<meta name="date" content="2026-04-29" />
 
-<title>Progress Report</title>
+<title>lab4</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,131 +350,44 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Progress Report</h1>
-<h4 class="author">kavya bhavanam</h4>
-<h4 class="date">2022-11-17</h4>
+<h1 class="title toc-ignore">lab4</h1>
+<h4 class="author">Kavya Bhavanam</h4>
+<h4 class="date">2026-04-29</h4>
 
 </div>
 
 
 <div id="step-1-finding-a-website" class="section level2">
-<h2>Step 1: Finding a Website</h2>
-<p>I used Baseball Reference to get Hall of Fame 2026 data from: <a href="https://www.baseball-reference.com/awards/hof_2026.shtml" class="uri">https://www.baseball-reference.com/awards/hof_2026.shtml</a></p>
+<h2>Step 1: Finding a website</h2>
+<p>I used Baseball Reference to get Hall of Fame 2026 data.</p>
 </div>
-<div id="step-2-scraping-the-data" class="section level2">
-<h2>Step 2: Scraping the Data</h2>
-<p>I used rvest to read the webpage and extract tables. The column names
-were stored in row 1, so I had to manually fix them.</p>
+<div id="step-2-scraping-data" class="section level2">
+<h2>Step 2: Scraping data</h2>
+<p>I used rvest to read the webpage and extract tables.</p>
 <pre class="r"><code>library(rvest)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ forcats   1.0.1     ✔ readr     2.1.6
-## ✔ ggplot2   4.0.2     ✔ stringr   1.6.0
-## ✔ lubridate 1.9.5     ✔ tibble    3.3.1
-## ✔ purrr     1.2.1     ✔ tidyr     1.3.2</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter()         masks stats::filter()
-## ✖ readr::guess_encoding() masks rvest::guess_encoding()
-## ✖ dplyr::lag()            masks stats::lag()
-## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-<pre class="r"><code>library(Lahman)
 
 url &lt;- &quot;https://www.baseball-reference.com/awards/hof_2026.shtml&quot;
-html &lt;- read_html(url)
-tables &lt;- html_table(html)
+page &lt;- read_html(url)
 
-data &lt;- tables[[1]]
-
-# The real column names are in row 1
-actual_col_names &lt;- data[1, ]
-colnames(data) &lt;- actual_col_names
-data &lt;- data[-1, ]
-
-head(data, 3)</code></pre>
-<pre><code>## # A tibble: 3 × 39
-##   Rk    Name       YoB   Votes `%vote` HOFm  HOFs  Yrs   WAR   WAR7  JAWS  Jpos 
-##   &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-## 1 1     Carlos Be… 4th   358   84.2%   126   50    20    70.0  44.4  57.2  58.0 
-## 2 2     Andruw Jo… 9th   333   78.4%   109   32    17    62.7  46.4  54.6  58.0 
-## 3 3     Chase Utl… 3rd   251   59.1%   94    36    16    64.6  49.3  56.9  56.6 
-## # ℹ 27 more variables: G &lt;chr&gt;, AB &lt;chr&gt;, R &lt;chr&gt;, H &lt;chr&gt;, HR &lt;chr&gt;,
-## #   RBI &lt;chr&gt;, SB &lt;chr&gt;, BB &lt;chr&gt;, BA &lt;chr&gt;, OBP &lt;chr&gt;, SLG &lt;chr&gt;, OPS &lt;chr&gt;,
-## #   `OPS+` &lt;chr&gt;, W &lt;chr&gt;, L &lt;chr&gt;, ERA &lt;chr&gt;, `ERA+` &lt;chr&gt;, WHIP &lt;chr&gt;,
-## #   G &lt;chr&gt;, GS &lt;chr&gt;, SV &lt;chr&gt;, IP &lt;chr&gt;, H &lt;chr&gt;, HR &lt;chr&gt;, BB &lt;chr&gt;,
-## #   SO &lt;chr&gt;, `Pos Summary` &lt;chr&gt;</code></pre>
-</div>
-<div id="step-3-cleaning-the-data" class="section level2">
-<h2>Step 3: Cleaning the Data</h2>
-<p>I converted Votes to numeric and used parse_number() to strip the %
-sign from the vote percentage column. I then added a yearID column and
-created an inducted variable based on whether the vote percentage was at
-least 75%.</p>
-<pre class="r"><code>data$Votes &lt;- as.numeric(data$Votes)
-data$percent_vote &lt;- readr::parse_number(data$`%vote`)</code></pre>
-</div>
-<div id="step-4-building-the-final-dataset" class="section level2">
-<h2>Step 4: Building the Final Dataset</h2>
-<p>I selected the required columns and added yearID and inducted.</p>
-<pre class="r"><code>hof_2026 &lt;- data %&gt;%
-  select(Name, Votes, `%vote`) %&gt;%
-  mutate(
-    yearID = 2026,
-    Votes = as.numeric(Votes),
-    percent_vote = readr::parse_number(`%vote`),
-    inducted = ifelse(percent_vote &gt;= 75, &quot;Y&quot;, &quot;N&quot;)
-  )
-
-head(hof_2026)</code></pre>
-<pre><code>## # A tibble: 6 × 6
-##   Name            Votes `%vote` yearID percent_vote inducted
-##   &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;   
-## 1 Carlos Beltrán    358 84.2%     2026         84.2 Y       
-## 2 Andruw Jones      333 78.4%     2026         78.4 Y       
-## 3 Chase Utley       251 59.1%     2026         59.1 N       
-## 4 Andy Pettitte     206 48.5%     2026         48.5 N       
-## 5 Félix Hernández   196 46.1%     2026         46.1 N       
-## 6 Alex Rodriguez    170 40.0%     2026         40   N</code></pre>
-</div>
-<div id="step-5-comparing-to-lahman" class="section level2">
-<h2>Step 5: Comparing to Lahman</h2>
-<p>I compared my scraped data to the Lahman HallOfFame table filtered to
-2026.</p>
-<pre class="r"><code># How many rows in scraped data?
-nrow(hof_2026)</code></pre>
-<pre><code>## [1] 27</code></pre>
-<pre class="r"><code># How many rows in Lahman 2026?
-lahman_2026 &lt;- HallOfFame %&gt;% filter(yearID == 2026)
-nrow(lahman_2026)</code></pre>
-<pre><code>## [1] 8</code></pre>
-<pre class="r"><code># Count inducted in each source
-hof_2026 %&gt;% count(inducted)</code></pre>
-<pre><code>## # A tibble: 2 × 2
-##   inducted     n
-##   &lt;chr&gt;    &lt;int&gt;
-## 1 N           25
-## 2 Y            2</code></pre>
-<pre class="r"><code>lahman_2026 %&gt;% count(votedBy, inducted)</code></pre>
-<pre><code>##                     votedBy inducted n
-## 1 Contemporary Baseball Era        N 7
-## 2 Contemporary Baseball Era        Y 1</code></pre>
-<p>The scraped data has more rows than the Lahman data for 2026. This is
-because Baseball Reference shows the full BBWAA ballot, while the Lahman
-data for 2026 only contains Contemporary Baseball Era committee votes.
-The two sources track different voting bodies, so they do not match
-row-for-row.</p>
-</div>
-<div id="step-6-exporting-the-csv" class="section level2">
-<h2>Step 6: Exporting the CSV</h2>
-<pre class="r"><code>readr::write_csv(hof_2026, file = &quot;HallOfFame_2026.csv&quot;)</code></pre>
+tables &lt;- html_table(page)
+hof &lt;- tables[[1]]
+head(hof)</code></pre>
+<pre><code>## # A tibble: 6 × 39
+##   ``    ``           ``    ``    ``    ``    ``    ``    ``    ``    ``    ``   
+##   &lt;chr&gt; &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 Rk    Name         YoB   Votes %vote HOFm  HOFs  Yrs   WAR   WAR7  JAWS  Jpos 
+## 2 1     Carlos Belt… 4th   358   84.2% 126   50    20    70.0  44.4  57.2  58.0 
+## 3 2     Andruw Jones 9th   333   78.4% 109   32    17    62.7  46.4  54.6  58.0 
+## 4 3     Chase Utley  3rd   251   59.1% 94    36    16    64.6  49.3  56.9  56.6 
+## 5 4     Andy Pettit… 8th   206   48.5% 128   44    18    60.2  34.1  47.2  61.4 
+## 6 5     Félix Herná… 2nd   196   46.1% 67    31    15    49.8  38.5  44.1  61.4 
+## # ℹ 27 more variables: `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;,
+## #   `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;,
+## #   `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;,
+## #   `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;,
+## #   `Batting Stats` &lt;chr&gt;, `Batting Stats` &lt;chr&gt;, `Pitching Stats` &lt;chr&gt;,
+## #   `Pitching Stats` &lt;chr&gt;, `Pitching Stats` &lt;chr&gt;, `Pitching Stats` &lt;chr&gt;,
+## #   `Pitching Stats` &lt;chr&gt;, `Pitching Stats` &lt;chr&gt;, `Pitching Stats` &lt;chr&gt;, …</code></pre>
 </div>
 
 
