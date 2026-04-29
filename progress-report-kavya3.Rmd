@@ -21,7 +21,8 @@ I used rvest to read the webpage and extract tables. The column names were store
 library(rvest)
 library(dplyr)
 library(tidyverse)
-install.packages("Lahman")
+
+
 library(Lahman)
 
 url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
