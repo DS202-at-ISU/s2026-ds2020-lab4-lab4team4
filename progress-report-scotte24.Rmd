@@ -74,5 +74,18 @@ hof_2026 |>
   filter(inducted == "Y")
 ```
 ```{r}
+hof_2026 <- raw_data %>%
+  select(Name, Votes, `%vote`) %>%
+  mutate(
+    Name = gsub("^X-", "", Name),   # <-- FIX HERE
+    yearID = 2026,
+    Votes = as.numeric(Votes),
+    percent_vote = parse_number(`%vote`),
+    inducted = ifelse(percent_vote >= 75, "Y", "N")
+  )
+```
+
+
+```{r}
 write.csv(hof_2026, "HallOfFame_2026.csv", row.names = FALSE)
 ```
