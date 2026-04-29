@@ -27,3 +27,47 @@ hof <- tables[[1]]
 head(hof)
 ```
 
+```{r}
+library(rvest)
+library(dplyr)
+install.packages("Lahman")
+
+library(Lahman)
+
+url <- "https://www.baseball-reference.com/awards/hof_2026.shtml"
+page <- read_html(url)
+
+
+tables <- html_table(page, fill = TRUE)
+
+length(tables)   # check how many tables
+
+hof_raw <- tables[[1]]
+head(hof_raw)
+
+
+tables[[1]]
+tables[[2]]
+
+
+```
+
+```{r}
+colnames(hof_raw)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
