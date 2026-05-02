@@ -73,19 +73,20 @@ Who was inducted
 hof_2026 |>
   filter(inducted == "Y")
 ```
+
 ```{r}
-hof_2026 <- raw_data %>%
-  select(Name, Votes, `%vote`) %>%
+hof_2026 <- raw_data |>
+  select(Name, Votes, `%vote`) |>
   mutate(
-    Name = gsub("^X-", "", Name),   # <-- FIX HERE
+    Name = gsub("^X-", "", Name),
+    Name = iconv(Name, to = "UTF-8"),
     yearID = 2026,
     Votes = as.numeric(Votes),
-    percent_vote = parse_number(`%vote`),
+    percent_vote = parse_number(`%vote`),  # removes % automatically
     inducted = ifelse(percent_vote >= 75, "Y", "N")
-  )
-```
+  ) |>
+  select(Name, yearID, Votes, percent_vote, inducted)  # drop original %vote column
 
-
-```{r}
-write.csv(hof_2026, "HallOfFame_2026.csv", row.names = FALSE)
+# Export
+write_excel_csv(hof_2026, "HallOfFame_2026.csv")
 ```
