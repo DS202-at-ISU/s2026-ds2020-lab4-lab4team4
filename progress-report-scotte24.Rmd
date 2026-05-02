@@ -82,10 +82,10 @@ hof_2026 <- raw_data |>
     Name = iconv(Name, to = "UTF-8"),
     yearID = 2026,
     Votes = as.numeric(Votes),
-    percent_vote = parse_number(`%vote`),  # removes % automatically
+    percent_vote = parse_number(`%vote`),  
     inducted = ifelse(percent_vote >= 75, "Y", "N")
   ) |>
-  select(Name, yearID, Votes, percent_vote, inducted)  # drop original %vote column
+  select(Name, yearID, Votes, percent_vote, inducted) 
 
 # Export
 write_excel_csv(hof_2026, "HallOfFame_2026.csv")
