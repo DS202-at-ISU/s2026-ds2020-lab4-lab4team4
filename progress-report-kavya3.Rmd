@@ -61,12 +61,16 @@ hof_clean
 ```
 
 ```{r}
+<<<<<<< HEAD
 data("HallOfFame")
 
 hof_lahman <- HallOfFame %>%
   filter(yearID == 2026)
 
 hof_lahman
+=======
+write.csv(hof_2026, "HallOfFame_2026.csv", row.names = FALSE)
+>>>>>>> e440969d47dc7f660e979718e3ae426da3862260
 ```
 
 ```{r}
